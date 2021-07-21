@@ -11,3 +11,7 @@ git config --global user.email jessicabalerna@gmail.com
 # Link your local repository to the origin repository on GitHub, by
 # copying the code shown on your GitHub repo under the heading:
 # "…or push an existing repository from the command line"
+
+git remote add origin https://github.com/jbalerna/handouts.git
+git branch -M main
+git push -u origin main
