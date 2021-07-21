@@ -1,45 +1,58 @@
 ## Vector Data
 
-library(...)
+library(sf)
 
-shp <- 'data/cb_2016_us_county_5m'
-counties <- ...(...)
+shp <- '~/data/cb_2016_us_county_5m'
+counties <- st_read(shp)
 
-sesync <- ...(
-    ...(c(-76.503394, 38.976546)),
+head(counties)
+
+sesync <- st_sfc(
+    st_point(c(-76.503394, 38.976546)),
     crs = st_crs(counties))
 
 ## Bounding box
 
-library(...)
-counties_md <- ...
+st_bbox(counties) #example for bounding box of the counties as a whole
+
+library(dplyr) #for filtering
+
+counties_md <- filter(counties, 
+                      STATEFP == "24") #subsets the data to 
+#only include maryland counties
+
+st_bbox(counties_md) #looks at altered bounding box coordinates 
+#now that we're only in MD
 
 ## Grid
 
-... <- ...(counties_md, ...)
+grid_md <- st_make_grid(counties_md, n=4)
+grid_md
 
 
-## Plot Layers
+## Plot Layers - if using the add function, they need to have the SAME CRS
+#make sure you check this!
 
-plot(...)
-plot(..., add = ...)
-plot(..., col = "green", pch = 20, ...)
+plot(grid_md, border="dark grey")
+plot(counties_md["NAME"], add = TRUE)
+plot(sesync, col = "green", pch = 20, add=TRUE)
+
 
 ## Plotting with ggplot2
 
-library(...)
+library(ggplot2)
 
 ggplot() +
-    ...(data = ..., aes(...)) +
-    ...(..., size = 3, color = 'red')  
+    geom_sf(data = counties_md, aes(fill = ALAND)) +
+    geom_sf(data = sesync, size = 3, color = 'red')  
 
 theme_set(theme_bw())
 
 ggplot() +
-    geom_sf(data = counties_md, aes(fill = ...), ...) +
+    geom_sf(data = counties_md, aes(fill = ALAND/1e6), color=NA) +
     geom_sf(data = sesync, size = 3, color = 'red') +
-    scale_fill_viridis_c(... = 'Land area (sq. km)') +
-    theme(... = c(0.3, 0.3))
+    scale_fill_viridis_c(name = 'Land area (sq. km)') +
+    theme(legend.position = c(0.3, 0.3))
 
 ## Coordinate Transforms
 
